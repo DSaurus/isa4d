@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ISA4D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #111;
+            color: #eee;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            position: relative;
+            background: none;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+            width: 100%;
+            /* Maintain 16:9 aspect ratio for 1080p video */
+            aspect-ratio: 16 / 9;
+            min-height: 340px;
+        }
+        @supports not (aspect-ratio: 16/9) {
+            header {
+                height: 56.25vw; /* fallback for browsers without aspect-ratio */
+                min-height: 340px;
+                max-height: 600px;
+            }
+        }
+        .header-bg-video {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .header-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.3) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+        header > *:not(.header-bg-video):not(.header-overlay) {
+            position: relative;
+            z-index: 3;
+        }
+        .header-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+        }
+        h2 {
+            color: #4f8cff;
+            margin-top: 2.5rem;
+            font-size: 2.2rem;
+        }
+        .authors {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .section {
+            margin-bottom: 3.5rem;
+        }
+        .video-explainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .video-explainer video, .video-explainer iframe {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        .results-category {
+            margin-bottom: 2rem;
+        }
+        .results-videos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .results-videos video, .results-videos iframe {
+            width: 280px;
+            height: 180px;
+            border-radius: 8px;
+            background: #eee;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 2.5rem auto;
+            background: #181818;
+            border-radius: 16px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.25);
+            padding: 3rem 4rem;
+            box-sizing: border-box;
+            /* Allow overflow for carousels */
+            overflow-x: visible;
+        }
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 98vw;
+                padding: 2rem 1.2rem;
+            }
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 1rem 0.5rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+            }
+            .results-videos {
+                flex-direction: column;
+                align-items: center;
+            }
+            .results-videos video, .results-videos iframe {
+                width: 100%;
+                height: auto;
+            }
+        }
+        .footer {
+            text-align: center;
+            color: #888;
+            font-size: 0.95rem;
+            margin: 2rem 0 1rem 0;
+        }
+        a {
+            color: #4f8cff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .results-carousel {
+            position: relative;
+            width: 100%;
+            max-width: 1400px; /* Match container */
+            margin: 0 auto 2rem auto;
+            height: 405px;
+            perspective: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+        .carousel-cards {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            min-width: 100%;
+            transition: transform 0.5s cubic-bezier(.4,2,.6,1);
+            cursor: grab;
+            will-change: transform;
+        }
+        .carousel-card {
+            flex: 0 0 50%;
+            max-width: 880px;
+            aspect-ratio: 16 / 9;
+            height: 340px;
+            background: #23272f;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+            opacity: 0.5;
+            z-index: 1;
+            transition: 
+                transform 0.4s cubic-bezier(.4,2,.6,1),
+                opacity 0.4s,
+                z-index 0s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            pointer-events: none;
+            position: relative;
+        }
+        .carousel-card video, .carousel-card iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+            background: #eee;
+            aspect-ratio: 16 / 9;
+        }
+        .carousel-card.center {
+            opacity: 1;
+            z-index: 3;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+            background: #23272f;
+            transform: scale(1.05);
+            pointer-events: auto;
+        }
+        .carousel-card.left,
+        .carousel-card.right {
+            opacity: 0.7;
+            z-index: 2;
+            transform: scale(0.85);
+        }
+        .carousel-card:not(.center):not(.left):not(.right) {
+            opacity: 0.2;
+            pointer-events: none;
+            transform: scale(0.7);
+        }
+        @media (max-width: 1500px) {
+            .results-carousel {
+                max-width: 98vw;
+                height: calc(49vw * 9 / 16);
+            }
+            .carousel-card, .carousel-card.center {
+                flex: 0 0 49vw;
+                max-width: 49vw;
+                width: 49vw;
+                height: calc(49vw * 9 / 16);
+            }
+        }
+        @media (max-width: 900px) {
+            .results-carousel {
+                max-width: 98vw;
+                height: calc(98vw * 9 / 16);
+            }
+            .carousel-card, .carousel-card.center {
+                flex: 0 0 98vw;
+                max-width: 98vw;
+                width: 98vw;
+                height: calc(98vw * 9 / 16);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <video class="header-bg-video" autoplay loop muted playsinline>
+            <source src="isa_assets/isa_title_demo.mp4" type="video/mp4">
+        </video>
+        <div class="header-overlay"></div>
+        <div class="header-content">
+            <h1>ISA4D:  Interspatial Attention for</h1>
+            <h1> Efficient 4D Human Video Generation</h1>
+            <div class="authors">
+                 Ruizhi Shao<sup>1,2*</sup>, &nbsp; Yinghao Xu<sup>2*</sup>, &nbsp; Yujun Shen<sup>3</sup>, &nbsp;  Ceyuan Yang<sup>4</sup>, <br>
+                 Yang Zheng<sup>2</sup>, &nbsp;  Changan Chen<sup>2</sup>, &nbsp;  Yebin Liu<sup>1</sup>, &nbsp;  Gordon Wetzstein<sup>2</sup> <br>
+                
+            </div>
+            <span style="font-size:0.95em;"><sup>1</sup>Tsinghua University &nbsp; <sup>2</sup>Stanford University &nbsp; <sup>3</sup>Ant Research &nbsp; <sup>4</sup>ByteDance</span>
+                <br>
+                <span style="font-size:0.95em;"><sup>*</sup> Equal Contribution</span>
+                <br>
+            <h3> SIGGRAPH 2025 </h3>
+            <div>
+                <a href="https://arxiv.org/abs/your-paper-id" target="_blank">[Paper]</a>
+                &nbsp;|&nbsp;
+                <a href="https://github.com/your-repo" target="_blank">[Code]</a>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="section">
+            <h2>DEMO Video</h2>
+            <div class="results-category">
+                <div style="display: flex; justify-content: center;">
+                    <video controls  style="width:1080px; aspect-ratio:16/9; border-radius:16px; background:#23272f; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+                        <source src="isa_assets/MJ_video_final.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Pipeline</h2>
+            <div style="display: flex; justify-content: center;">
+                <!-- Replace the src with your own video or YouTube embed -->
+                <image src="isa_assets/isa_pipeline.jpg" style="width:1080px; border-radius:16px; background:#23272f; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+                <!-- Or use YouTube embed:
+                <iframe src="https://www.youtube.com/embed/your_video_id" frameborder="0" allowfullscreen></iframe>
+                -->
+            </div>
+            <p>Overview of our diffusion transformer architecture for 4D human generation. Taking the reference image, SMPL condition, camera poses, and background videos as input.
+                Our framework starts by tokenizing 3D SMPL conditions.
+                In parallel, 2D video tokens are optionally composited with background elements and processed through a cascade of disentangled spatial and temporal transformer blocks, enabling efficient modeling of spatio-temporal relationships. These tokens then seamlessly interact with pose tokens via our Interspatial Transformer Block, facilitating effective 3D-aware conditioning. The generated features are further enhanced through Plücker camera embeddings for precise view control and interact with reference image features through cross attention to ensure consistent identity preservation. The entire framework is optimized using a flow-based diffusion formulation, enabling high-quality 4D human generation with controllable pose, viewpoint, and identity.</p>
+            
+        </div>
+        <div class="section">
+            <h2>Method</h2>
+            <div style="display: flex; justify-content: center;">
+                <!-- Replace the src with your own video or YouTube embed -->
+                <video controls  style="width:1080px; aspect-ratio:16/9; border-radius:16px; background:#23272f; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+                    <source src="isa_assets/method.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <!-- Or use YouTube embed:
+                <iframe src="https://www.youtube.com/embed/your_video_id" frameborder="0" allowfullscreen></iframe>
+                -->
+            </div>
+        </div>
+        <div class="section">
+            <h2>Results</h2>
+            
+            <div class="results-category">
+                <h3>Multi-Human Generation</h3>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_0.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_4.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_5.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_9.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_7.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/multi_8.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-category">
+                <h3>Camera Control Generation</h3>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/camera_1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/camera_2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/camera_3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/camera_4.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/camera_5.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/camera_6.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-category">
+                <h3>Background Composition Generation</h3>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_4.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_5.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_6.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_7.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_8.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/background_9.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-category">
+                <h3>Single Human Generation</h3>
+                <div style="display: flex; justify-content: center;">
+                    <video controls  style="width:1080px; aspect-ratio:16/9; border-radius:16px; background:#23272f; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+                        <source src="isa_assets/single_0.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div style="display: flex; justify-content: center;">
+                    <video controls  style="width:1080px; aspect-ratio:16/9; border-radius:16px; background:#23272f; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+                        <source src="isa_assets/single_1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+            <div class="results-category">
+                <h3>Face Generation</h3>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/face_1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/face_2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/face_3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/face_4.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/face_5.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/face_6.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-category">
+                <h3>Upper-body Generation</h3>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/upper_0.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/upper_1.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/upper_2.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-carousel">
+                    <div class="carousel-cards">
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/upper_3.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/upper_4.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                        <div class="carousel-card">
+                            <video controls>
+                                <source src="isa_assets/upper_5.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="results-category">
+                <h2>Citation</h2>
+                
+            </div>
+
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2025 Ruizhi Shao</a>.
+    </div>
+    <script>
+        // Card carousel logic: no overlap, half cards visible, drag/swipe
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.results-carousel').forEach(function(carousel) {
+                const cards = Array.from(carousel.querySelectorAll('.carousel-card'));
+                const wrapper = carousel.querySelector('.carousel-cards');
+                // Set current to the middle card
+                let current = Math.floor(cards.length / 2);
+                let startX = 0;
+                let isDragging = false;
+                let deltaX = 0;
+
+                function update() {
+                    // Set classes for center, left, right, and arrange cards in a cycle
+                    cards.forEach((card, i) => {
+                        card.classList.remove('left', 'center', 'right');
+                        if (i === current) {
+                            card.classList.add('center');
+                        } else if (i === (current - 1 + cards.length) % cards.length) {
+                            card.classList.add('left');
+                        } else if (i === (current + 1) % cards.length) {
+                            card.classList.add('right');
+                        }
+                    });
+                    // Move the wrapper so the center card is always in the middle
+                    const cardWidth = cards[0].offsetWidth;
+                    const carouselWidth = wrapper.parentElement.offsetWidth;
+                    // Center the current card in the carousel
+                    wrapper.style.transform = `translateX(${(carouselWidth / 2) - ((current + 0.5) * cardWidth)}px)`;
+                }
+
+                function slideTo(dir) {
+                    if (dir === 'left') {
+                        current = (current - 1 + cards.length) % cards.length;
+                    } else if (dir === 'right') {
+                        current = (current + 1) % cards.length;
+                    }
+                    update();
+                }
+
+                // Mouse/touch drag support
+                wrapper.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.clientX;
+                    deltaX = 0;
+                    wrapper.style.cursor = 'grabbing';
+                });
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    deltaX = e.clientX - startX;
+                });
+                window.addEventListener('mouseup', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    wrapper.style.cursor = 'grab';
+                    if (deltaX > 60) {
+                        slideTo('left');
+                    } else if (deltaX < -60) {
+                        slideTo('right');
+                    }
+                    deltaX = 0;
+                });
+                // Touch support
+                wrapper.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    startX = e.touches[0].clientX;
+                    deltaX = 0;
+                });
+                wrapper.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    deltaX = e.touches[0].clientX - startX;
+                });
+                wrapper.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    if (deltaX > 60) {
+                        slideTo('left');
+                    } else if (deltaX < -60) {
+                        slideTo('right');
+                    }
+                    deltaX = 0;
+                });
+
+                update();
+                window.addEventListener('resize', update);
+            });
+        });
+    </script>
+</body>
+</html>
