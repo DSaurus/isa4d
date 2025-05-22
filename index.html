@@ -242,6 +242,42 @@
                 height: calc(98vw * 9 / 16);
             }
         }
+        .carousel-arrows {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 98%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 10;
+            transform: translateY(-50%);
+            padding: 0 10px;
+        }
+        .carousel-arrow {
+            pointer-events: auto;
+            background: #fff;
+            color: #4f8cff;
+            border: 2px solid #4f8cff;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            transition: background 0.2s, color 0.2s, border 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 11;
+        }
+        .carousel-arrow:hover {
+            background: #4f8cff;
+            color: #fff;
+            border: 2px solid #fff;
+        }
     </style>
 </head>
 <body>
@@ -269,9 +305,9 @@
                 <br>
             <h3> SIGGRAPH 2025 </h3>
             <div>
-                <a href="https://arxiv.org/abs/your-paper-id" target="_blank">[Paper]</a>
+                <a href="https://arxiv.org/abs/2505.15800" target="_blank">[Paper]</a>
                 &nbsp;|&nbsp;
-                <a href="https://github.com/your-repo" target="_blank">[Code]</a>
+                <a href="https://github.com/DSaurus/ISA4D_code" target="_blank">[Code]</a>
             </div>
         </div>
     </header>
@@ -321,21 +357,13 @@
                 <h3>Multi-Human Generation</h3>
                 <div class="results-carousel">
                     <div class="carousel-cards">
-                        <div class="carousel-card">
-                            <video controls>
-                                <source src="isa_assets/multi_0.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-card">
-                            <video controls>
-                                <source src="isa_assets/multi_1.mp4" type="video/mp4">
-                            </video>
-                        </div>
-                        <div class="carousel-card">
-                            <video controls>
-                                <source src="isa_assets/multi_2.mp4" type="video/mp4">
-                            </video>
-                        </div>
+                        <div class="carousel-card"><video controls><source src="isa_assets/multi_0.mp4" type="video/mp4"></video></div>
+                        <div class="carousel-card"><video controls><source src="isa_assets/multi_1.mp4" type="video/mp4"></video></div>
+                        <div class="carousel-card"><video controls><source src="isa_assets/multi_2.mp4" type="video/mp4"></video></div>
+                    </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
                     </div>
                 </div>
                 <div class="results-carousel">
@@ -356,6 +384,10 @@
                             </video>
                         </div>
                     </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
+                    </div>
                 </div>
                 <div class="results-carousel">
                     <div class="carousel-cards">
@@ -374,6 +406,10 @@
                                 <source src="isa_assets/multi_8.mp4" type="video/mp4">
                             </video>
                         </div>
+                    </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
                     </div>
                 </div>
             </div>
@@ -397,6 +433,10 @@
                             </video>
                         </div>
                     </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
+                    </div>
                 </div>
                 <div class="results-carousel">
                     <div class="carousel-cards">
@@ -415,6 +455,10 @@
                                 <source src="isa_assets/camera_6.mp4" type="video/mp4">
                             </video>
                         </div>
+                    </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
                     </div>
                 </div>
             </div>
@@ -458,6 +502,10 @@
                             </video>
                         </div>
                     </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
+                    </div>
                 </div>
                 <div class="results-carousel">
                     <div class="carousel-cards">
@@ -476,6 +524,10 @@
                                 <source src="isa_assets/background_9.mp4" type="video/mp4">
                             </video>
                         </div>
+                    </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
                     </div>
                 </div>
             </div>
@@ -515,6 +567,10 @@
                             </video>
                         </div>
                     </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
+                    </div>
                 </div>
                 <div class="results-carousel">
                     <div class="carousel-cards">
@@ -533,6 +589,10 @@
                                 <source src="isa_assets/face_6.mp4" type="video/mp4">
                             </video>
                         </div>
+                    </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
                     </div>
                 </div>
             </div>
@@ -556,6 +616,10 @@
                             </video>
                         </div>
                     </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
+                    </div>
                 </div>
                 <div class="results-carousel">
                     <div class="carousel-cards">
@@ -575,16 +639,35 @@
                             </video>
                         </div>
                     </div>
+                    <div class="carousel-arrows">
+                        <button class="carousel-arrow left" aria-label="Previous">&#8592;</button>
+                        <button class="carousel-arrow right" aria-label="Next">&#8594;</button>
+                    </div>
                 </div>
             </div>
             
             <div class="results-category">
                 <h2>Ethics</h2>
-                
+                <div style="margin: 0 auto; font-size: 1.1rem; color: #ccc; background: #23272f; border-radius: 10px; padding: 1.5rem 2rem;">
+                    Our research presents advanced generative AI capabilities for human video synthesis. We firmly oppose the misuse of our technology for generating manipulated content of real individuals. While our model enables the creation and editing of photorealistic digital humans, we strongly condemn any application aimed at spreading misinformation, damaging reputations, or creating deceptive content. We acknowledge the ethical considerations surrounding this technology and are committed to responsible development and deployment that prioritizes transparency and prevents harmful applications.
+                </div>
             </div>
             <div class="results-category">
                 <h2>Citation</h2>
-                
+                <div style="margin: 0 auto; font-size: 1.1rem; color: #ccc; background: #23272f; border-radius: 10px; padding: 1.5rem 2rem;">
+                    <b>Ruizhi Shao, Yinghao Xu, Yujun Shen, Ceyuan Yang, Yang Zheng, Changan Chen, Yebin Liu, Gordon Wetzstein.</b><br>
+                    "ISA4D: Interspatial Attention for Efficient 4D Human Video Generation".<br>
+                    <i>ACM Trans. Graph. (Proc. SIGGRAPH) 2025.</i>
+                    <pre style="background:#181818; color:#eee; border-radius:8px; padding:1em; margin-top:1em; font-size:0.95em; overflow-x:auto;">
+@article{shao2024isa4d,
+title={ISA4D: Interspatial Attention for Efficient 4D Human Video Generation},
+author={Shao, Ruizhi and Xu, Yinghao and Shen, Yujun and Yang, Ceyuan and Zheng, Yang and Chen, Changan and Liu, Yebin and Wetzstein, Gordon},
+journal={ACM Transactions on Graphics (TOG)},
+year={2025},
+publisher={ACM New York, NY, USA}
+}
+                    </pre>
+                </div>
             </div>
 
         </div>
@@ -674,6 +757,22 @@
                     }
                     deltaX = 0;
                 });
+
+                // Add event listeners for arrow buttons
+                const leftArrow = carousel.querySelector('.carousel-arrow.left');
+                const rightArrow = carousel.querySelector('.carousel-arrow.right');
+                if (leftArrow) {
+                    leftArrow.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        slideTo('left');
+                    });
+                }
+                if (rightArrow) {
+                    rightArrow.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        slideTo('right');
+                    });
+                }
 
                 update();
                 window.addEventListener('resize', update);
