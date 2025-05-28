@@ -757,4 +757,81 @@ publisher={ACM New York, NY, USA}
                     const cardWidth = cards[0].offsetWidth;
                     const carouselWidth = wrapper.parentElement.offsetWidth;
                     // Center the current card in the carousel
-                    wrapper.style.transform = `
+                    wrapper.style.transform = `translateX(${(carouselWidth / 2) - ((current + 0.5) * cardWidth)}px)`;
+                }
+
+                function slideTo(dir) {
+                    if (dir === 'left') {
+                        current = (current - 1 + cards.length) % cards.length;
+                    } else if (dir === 'right') {
+                        current = (current + 1) % cards.length;
+                    }
+                    update();
+                }
+
+                // Mouse/touch drag support
+                wrapper.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    startX = e.clientX;
+                    deltaX = 0;
+                    wrapper.style.cursor = 'grabbing';
+                });
+                window.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+                    deltaX = e.clientX - startX;
+                });
+                window.addEventListener('mouseup', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    wrapper.style.cursor = 'grab';
+                    if (deltaX > 60) {
+                        slideTo('left');
+                    } else if (deltaX < -60) {
+                        slideTo('right');
+                    }
+                    deltaX = 0;
+                });
+                // Touch support
+                wrapper.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    startX = e.touches[0].clientX;
+                    deltaX = 0;
+                });
+                wrapper.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    deltaX = e.touches[0].clientX - startX;
+                });
+                wrapper.addEventListener('touchend', (e) => {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    if (deltaX > 60) {
+                        slideTo('left');
+                    } else if (deltaX < -60) {
+                        slideTo('right');
+                    }
+                    deltaX = 0;
+                });
+
+                // Add event listeners for arrow buttons
+                const leftArrow = carousel.querySelector('.carousel-arrow.left');
+                const rightArrow = carousel.querySelector('.carousel-arrow.right');
+                if (leftArrow) {
+                    leftArrow.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        slideTo('left');
+                    });
+                }
+                if (rightArrow) {
+                    rightArrow.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        slideTo('right');
+                    });
+                }
+
+                update();
+                window.addEventListener('resize', update);
+            });
+        });
+    </script>
+</body>
+</html>
